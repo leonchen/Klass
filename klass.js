@@ -2,9 +2,9 @@
   debug: false,
   classMemberPrefix: 'c_',
   privateMethodPrefix: '_',
-  reservedAttributes: ['self', '_super', 'klassName', 'parentKlass', 'klass', 'instance', 'singleton', '_singletonInstance', 'classMethods', 'instanceMethods', 'prototype', '_tmpSuperMethod'],
+  reservedAttributes: ['self', '_super', 'klassName', 'parentKlass', 'klass', 'instance', 'singleton', 'subKlass', 'extend', '_singletonInstance', 'classMethods', 'instanceMethods', 'prototype', '_tmpSuperMethod'],
   controllableAttributes: ['Mixins', 'Abstract', 'Singleton'],
-  superMethod: 'var _super=function () {var s=self;var c=arguments.callee.caller;var fN=c._functionName;var pK=c._parentKlass;if(!pK){pK=s.klass?s.klass.parentKlass:s.parentKlass};var idx=0;while(s["_tmpSuperMethod"+idx]){idx++;}var tN="_tmpSuperMethod"+idx;eval("self."+tN+"="+pK.prototype[fN].toString());s[tN]._parentKlass=pK.parentKlass;s[tN]._functionName=fN;var r=s[tN].apply(s,arguments);delete s[tN];return r;};',
+  superMethod: 'var _super=function(){var s=self;var c=arguments.callee.caller;var fN=c._functionName;var pK=c._parentKlass;if(!pK){pK=s.klass?s.klass.parentKlass:s.parentKlass};var idx=0;while(s["_tmpSuperMethod"+idx]){idx++;}var tN="_tmpSuperMethod"+idx;eval("self."+tN+"="+pK.prototype[fN].toString());s[tN]._parentKlass=pK.parentKlass;s[tN]._functionName=fN;var r=s[tN].apply(s,arguments);delete s[tN];return r;};',
 
   create: function (name) {
     var prototype = arguments[1] || {};
@@ -154,7 +154,7 @@
   createKlass: function (p, name, parentKlass) {
     var np = this.parsePrototype(p);
     try {
-      eval('var klass = new function () {var self=this;' + this.superMethod + np.pmsString + np.cmsString + '};');
+      eval('var klass=new function(){var self=this;' + this.superMethod + np.pmsString + np.cmsString + '};');
     } catch (e) {
       this.log("Failed to create "+this.klassName+":", e);
     }
@@ -201,7 +201,7 @@
   klassInstance: function (klass) {
     var np = this.parsePrototype(this.klassPrototype(klass));
     try {
-      eval('var instance = new function () {var self=this;' + this.superMethod + np.pmsString + np.imsString + '};');
+      eval('var instance=new function(){var self=this;' + this.superMethod + np.pmsString + np.imsString + '};');
     } catch (e) {
       this.log("Failed to instantiate "+klass.klassName+":", e);
     }

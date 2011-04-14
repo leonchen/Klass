@@ -1,0 +1,201 @@
+require('sys');
+require('./klass');
+
+//1. create klass:
+
+Klass.create('A.B', {
+  initialize: function (word) {
+    this.word = word;
+  },
+
+  say: function () {
+    console.log(this.word);
+  }
+});
+
+var c = A.B.instance('hello world');
+c.say();
+
+
+//2. klass method:
+
+Klass.create('A.B', {
+  c_say: function () {
+    console.log('hello world');
+  }
+});
+
+A.B.say();
+
+
+//3. private method:
+
+Klass.create('A.B', {
+  c_say: function () {
+    console.log('klass '+ say());
+  },
+
+  say: function () {
+    console.log('instance ' + say());
+  },
+
+  _say: function () {
+    return 'hello world';
+  }
+});
+
+A.B.say();
+var c = A.B.instance();
+c.say();
+
+
+//4. extend klass:
+
+Klass.create('A.B', {
+  initialize: function (word) {
+    this.word = word;
+  }
+});
+
+A.B.extend({
+  say: function () {
+    console.log(this.word);
+  }
+});
+
+var c = A.B.instance('hello world');
+c.say();
+
+
+//5. subKlass:
+
+Klass.create('A', {
+  initialize: function (word) {
+    this.word = word;
+  }
+});
+
+A.subKlass('B', {
+  say: function () {
+    console.log(this.word);
+  }
+});
+
+var c = B.instance('hello world');
+c.say();
+
+
+//6. self usage:
+
+Klass.create('A', {
+  initialize: function (word) {
+    self.word = word;
+    self.sayAgain = function () {
+      self.say();
+    };
+  },
+
+  say: function () {
+    console.log(self.word);
+  }
+});
+
+var a = A.instance('hello world');
+a.sayAgain();
+
+
+//7. _super:
+
+Klass.create('A', {
+  _say: function () {
+    return 'world';
+  } 
+});
+
+A.subKlass('B', {
+  _say: function () {
+    return 'hello ' + _super();
+  } 
+});
+
+B.subKlass('C', {
+  say: function () {
+    console.log(say());
+  },
+  
+  _say: function () {
+    return 'say ' + _super();
+  }
+});
+
+var c = C.instance();
+c.say(); // say hello world
+
+
+//8. klass attribute:
+
+Klass.create('A', {
+  c_LIMIT: 100 
+});
+
+console.log(A.LIMIT); // 100
+
+
+//9. mixin:
+
+Klass.create('A', {
+  c_LIMIT: 100 
+});
+
+Klass.create('B', {
+  say: function () {
+    console.log(say());
+  },
+  
+  _say: function () {
+    return 'hello';
+  }
+});
+
+Klass.create('C', {
+  Mixins: [A, B], 
+
+  _say: function () {
+    return 'world';
+  } 
+});
+
+console.log(C.LIMIT); // 100
+var c = C.instance();
+c.say(); // world
+
+
+//10. abstract klass:
+
+Klass.create('C', {
+  Abstract: true,
+});
+
+try {
+  var c = C.instance();
+} catch (e) {
+  console.log('abstract klass cannot be instantiated');
+}
+
+
+//11. singleton:
+
+Klass.create('C', {
+  Singleton: true,
+
+  count: function () {
+    this._count = this._count || 1;
+    console.log(this._count);
+    this._count++;
+  }
+});
+
+var c = C.singleton();
+c.count(); // 1
+var cc = C.singleton();
+cc.count(); // 2
