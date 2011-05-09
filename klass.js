@@ -1,8 +1,8 @@
 ;Klass = { 
   debug: false,
-  classMemberPrefix: 'c_',
-  privateMethodPrefix: '_',
-  reservedAttributes: ['self', '_super', 'klassName', 'parentKlass', 'klass', 'instance', 'singleton', 'subKlass', 'extend', '_singletonInstance', 'classMethods', 'instanceMethods', 'prototype', '_tmpSuperMethod'],
+  cMPrefixRegexp: /^\$/,
+  pMPrefixRegexp: /^_/,
+  reservedAttributes: ['self', '_super', 'klassName', 'parentKlass', 'klass', '$new', '$singleton', '$subKlass', '$extend', '_singletonInstance', 'classMethods', 'instanceMethods', 'prototype', '_tmpSuperMethod'],
   controllableAttributes: ['Mixins', 'Abstract', 'Singleton'],
   superMethod: 'var _super=function(){var s=self;var c=arguments.callee.caller;var fN=c._functionName;var pK=c._parentKlass;if(!pK){pK=s.klass?s.klass.parentKlass:s.parentKlass};var idx=0;while(s["_tmpSuperMethod"+idx]){idx++;}var tN="_tmpSuperMethod"+idx;eval("self."+tN+"="+pK.prototype[fN].toString());s[tN]._parentKlass=pK.parentKlass;s[tN]._functionName=fN;var r=s[tN].apply(s,arguments);delete s[tN];return r;};',
 
@@ -82,7 +82,7 @@
   klassPrototype: function (klass) {
     for (var m in klass) {
       if (this.isReserved(m)) continue;
-      klass.prototype[this.classMemberPrefix + m] = klass[m];
+      klass.prototype[m] = klass[m];
     }
     return klass.prototype;
   },
@@ -122,26 +122,21 @@
     delete p.Abstract;
     np.Singleton = p.Singleton;
 
-    if (!this.pMPrefixRegexp) this.pMPrefixRegexp = new RegExp("^"+this.privateMethodPrefix);
-    if (!this.cMPrefixRegexp) this.cMPrefixRegexp = new RegExp("^"+this.classMemberPrefix);
-
     for (var m in p) {
       if (this.isReserved(m)) continue;
       if (typeof p[m] != 'function') {
          if (m.match(this.cMPrefixRegexp)) {
-           np.cas[m.replace(this.cMPrefixRegexp, '')] = p[m];
+           np.cas[m] = p[m];
          } else {
            np.ias[m] = p[m];
          }
       } else if (m.match(this.pMPrefixRegexp)) {
-        var pName = m.replace(this.pMPrefixRegexp, '');
-        np.pmsString += 'var ' + pName + ' = ' + p[m].toString() + ';';
-        np.pmsString += pName + '._functionName = "' +m+ '";';
+        np.pmsString += 'var ' + m + ' = ' + p[m].toString() + ';';
+        np.pmsString += m + '._functionName = "' +m+ '";';
       } else if (m.match(this.cMPrefixRegexp)) {
-        var cName = m.replace(this.cMPrefixRegexp, '');
-        np.cms.push(cName);
-        np.cmsString += 'this.' + cName + ' = ' + p[m].toString() + ';';
-        np.cmsString += 'this.' + cName + '._functionName = "' +m+ '";';
+        np.cms.push(m);
+        np.cmsString += 'this.' + m + ' = ' + p[m].toString() + ';';
+        np.cmsString += 'this.' + m + '._functionName = "' +m+ '";';
       } else {
         np.ims.push(m);
         np.imsString += 'this.' + m + ' = ' + p[m].toString() + ';';
@@ -170,12 +165,12 @@
      
     if (!np.Abstract){
       if (np.Singleton) {
-        klass.singleton = function () {
+        klass.$singleton = function () {
           if (!this._singletonInstance) this._singletonInstance = Klass.klassInstance(this); 
           return this._singletonInstance;
         };
       } else {
-        klass.instance = function () {
+        klass.$new = function () {
           var instance = Klass.klassInstance(this);
           try {
             if (instance.initialize) instance.initialize.apply(instance, arguments);
@@ -187,11 +182,11 @@
       }
     }
     
-    klass.subKlass = function (subKlassName, prototype) {
+    klass.$subKlass = function (subKlassName, prototype) {
       return Klass.subKlass(this, subKlassName, prototype);
     }
 
-    klass.extend = function (prototype) {
+    klass.$extend = function (prototype) {
       return Klass.extend(this, prototype);
     }
 

@@ -13,30 +13,30 @@ Klass.create('A.B', {
   }
 });
 
-var c = A.B.instance('hello world');
+var c = A.B.$new('hello world');
 c.say();
 
 
 //2. klass method:
 
 Klass.create('A.B', {
-  c_say: function () {
+  $say: function () {
     console.log('hello world');
   }
 });
 
-A.B.say();
+A.B.$say();
 
 
 //3. private method:
 
 Klass.create('A.B', {
-  c_say: function () {
-    console.log('klass '+ say());
+  $say: function () {
+    console.log('klass '+ _say());
   },
 
   say: function () {
-    console.log('instance ' + say());
+    console.log('instance ' + _say());
   },
 
   _say: function () {
@@ -44,8 +44,8 @@ Klass.create('A.B', {
   }
 });
 
-A.B.say();
-var c = A.B.instance();
+A.B.$say();
+var c = A.B.$new();
 c.say();
 
 
@@ -57,13 +57,13 @@ Klass.create('A.B', {
   }
 });
 
-A.B.extend({
+A.B.$extend({
   say: function () {
     console.log(this.word);
   }
 });
 
-var c = A.B.instance('hello world');
+var c = A.B.$new('hello world');
 c.say();
 
 
@@ -75,13 +75,13 @@ Klass.create('A', {
   }
 });
 
-A.subKlass('B', {
+A.$subKlass('B', {
   say: function () {
     console.log(this.word);
   }
 });
 
-var c = B.instance('hello world');
+var c = B.$new('hello world');
 c.say();
 
 
@@ -100,7 +100,7 @@ Klass.create('A', {
   }
 });
 
-var a = A.instance('hello world');
+var a = A.$new('hello world');
 a.sayAgain();
 
 
@@ -112,15 +112,15 @@ Klass.create('A', {
   } 
 });
 
-A.subKlass('B', {
+A.$subKlass('B', {
   _say: function () {
     return 'hello ' + _super();
   } 
 });
 
-B.subKlass('C', {
+B.$subKlass('C', {
   say: function () {
-    console.log(say());
+    console.log(_say());
   },
   
   _say: function () {
@@ -128,28 +128,28 @@ B.subKlass('C', {
   }
 });
 
-var c = C.instance();
+var c = C.$new();
 c.say(); // say hello world
 
 
 //8. klass attribute:
 
 Klass.create('A', {
-  c_LIMIT: 100 
+  $LIMIT: 100 
 });
 
-console.log(A.LIMIT); // 100
+console.log(A.$LIMIT); // 100
 
 
 //9. mixin:
 
 Klass.create('A', {
-  c_LIMIT: 100 
+  $LIMIT: 100 
 });
 
 Klass.create('B', {
   say: function () {
-    console.log(say());
+    console.log(_say());
   },
   
   _say: function () {
@@ -165,8 +165,8 @@ Klass.create('C', {
   } 
 });
 
-console.log(C.LIMIT); // 100
-var c = C.instance();
+console.log(C.$LIMIT); // 100
+var c = C.$new();
 c.say(); // world
 
 
@@ -177,7 +177,7 @@ Klass.create('C', {
 });
 
 try {
-  var c = C.instance();
+  var c = C.$new();
 } catch (e) {
   console.log('abstract klass cannot be instantiated');
 }
@@ -195,7 +195,7 @@ Klass.create('C', {
   }
 });
 
-var c = C.singleton();
+var c = C.$singleton();
 c.count(); // 1
-var cc = C.singleton();
+var cc = C.$singleton();
 cc.count(); // 2
